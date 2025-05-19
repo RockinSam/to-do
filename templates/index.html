@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Groceries List</h1>
+
+<form action="{{ url_for('add') }}" method="post" class="input-group mb-3">
+    <input type="text" name="task" class="form-control" placeholder="Enter new item" required>
+    <button class="btn btn-primary" type="submit">Add</button>
+</form>
+
+<ul class="list-group">
+    {% for task in tasks %}
+        {% set i = loop.index0 %}
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if task.done %}list-group-item-success{% endif %}">
+            <span>
+                {% if task.done %}<s>{{ task.task }}</s>{% else %}{{ task.task }}{% endif %}
+            </span>
+            <span>
+                <a href="{{ url_for('complete', task_id=i) }}" class="btn btn-sm btn-outline-success">✓</a>
+                <a href="{{ url_for('delete', task_id=i) }}" class="btn btn-sm btn-outline-danger">🗑️</a>
+            </span>
+        </li>
+    {% else %}
+        <li class="list-group-item">No items yet!</li>
+    {% endfor %}
+</ul>
+{% endblock %}
