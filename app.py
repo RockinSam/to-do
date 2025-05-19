@@ -16,18 +16,18 @@ def index():
 def add():
     grocery = request.form.get('grocery')
     if grocery:
-        tasks.append({'grocery': grocery, 'done': False})
+        groceries.append({'grocery': grocery, 'done': False})
     return redirect(url_for('index'))
 
 @app.route('/complete/<int:grocery_id>')
 def complete(grocery_id):
-    if 0 <= grocery_id < len(tasks):
+    if 0 <= grocery_id < len(groceries):
         groceries[grocery_id]['done'] = not groceries[grocery_id]['done']
     return redirect(url_for('index'))
 
 @app.route('/delete/<int:grocery_id>')
 def delete(grocery_id):
     if 0 <= grocery_id < len(groceries):
-        tasks.pop(grocery_id)
+        groceries.pop(grocery_id)
     return redirect(url_for('index'))
 
