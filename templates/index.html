@@ -4,20 +4,20 @@
 <h1 class="mb-4">Groceries List</h1>
 
 <form action="{{ url_for('add') }}" method="post" class="input-group mb-3">
-    <input type="text" name="task" class="form-control" placeholder="Enter new item" required>
+    <input type="text" name="grocery" class="form-control" placeholder="Enter new item" required>
     <button class="btn btn-primary" type="submit">Add</button>
 </form>
 
 <ul class="list-group">
-    {% for task in tasks %}
+    {% for grocery in groceries %}
         {% set i = loop.index0 %}
-        <li class="list-group-item d-flex justify-content-between align-items-center {% if task.done %}list-group-item-success{% endif %}">
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if grocery.done %}list-group-item-success{% endif %}">
             <span>
-                {% if task.done %}<s>{{ task.task }}</s>{% else %}{{ task.task }}{% endif %}
+                {% if grocery.done %}<s>{{ grocery.grocery }}</s>{% else %}{{ grocery.grocery }}{% endif %}
             </span>
             <span>
-                <a href="{{ url_for('complete', task_id=i) }}" class="btn btn-sm btn-outline-success">✓</a>
-                <a href="{{ url_for('delete', task_id=i) }}" class="btn btn-sm btn-outline-danger">🗑️</a>
+                <a href="{{ url_for('complete', grocery_id=i) }}" class="btn btn-sm btn-outline-success">✓</a>
+                <a href="{{ url_for('delete', grocery_id=i) }}" class="btn btn-sm btn-outline-danger">🗑️</a>
             </span>
         </li>
     {% else %}
