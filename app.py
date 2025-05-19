@@ -1,32 +1,33 @@
+
+# A very simple Flask Hello World app for you to get started with...
+
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-# In-memory task list (will reset when server restarts)
-tasks = []
+# In-memory groceries list (will reset when server restarts)
+groceries = []
 
 @app.route('/')
 def index():
-    return render_template('index.html', tasks=tasks)
+    return render_template('index.html', groceries=groceries)
 
 @app.route('/add', methods=['POST'])
 def add():
-    task = request.form.get('task')
-    if task:
-        tasks.append({'task': task, 'done': False})
+    grocery = request.form.get('grocery')
+    if grocery:
+        tasks.append({'grocery': grocery, 'done': False})
     return redirect(url_for('index'))
 
-@app.route('/complete/<int:task_id>')
-def complete(task_id):
-    if 0 <= task_id < len(tasks):
-        tasks[task_id]['done'] = not tasks[task_id]['done']
+@app.route('/complete/<int:grocery_id>')
+def complete(grocery_id):
+    if 0 <= grocery_id < len(tasks):
+        groceries[grocery_id]['done'] = not groceries[grocery_id]['done']
     return redirect(url_for('index'))
 
-@app.route('/delete/<int:task_id>')
-def delete(task_id):
-    if 0 <= task_id < len(tasks):
-        tasks.pop(task_id)
+@app.route('/delete/<int:grocery_id>')
+def delete(grocery_id):
+    if 0 <= grocery_id < len(groceries):
+        tasks.pop(grocery_id)
     return redirect(url_for('index'))
 
-if __name__ == '__main__':
-    app.run(debug=True)
