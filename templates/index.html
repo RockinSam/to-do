@@ -1,27 +1,33 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grocery List</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 8px 0; }
+        form { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🛒 Grocery List</h1>
 
-{% block content %}
-<h1 class="mb-4">Groceries List</h1>
+    <ul>
+        {% for item in grocery_list %}
+            <li>
+                {{ item.name }}
+                <a href="{{ url_for('remove', item_id=item.id) }}">❌</a>
+            </li>
+        {% else %}
+            <li>No items yet!</li>
+        {% endfor %}
+    </ul>
 
-<form action="{{ url_for('add') }}" method="post" class="input-group mb-3">
-    <input type="text" name="grocery" class="form-control" placeholder="Enter new item" required>
-    <button class="btn btn-primary" type="submit">Add</button>
-</form>
-
-<ul class="list-group">
-    {% for grocery in groceries %}
-        {% set i = loop.index0 %}
-        <li class="list-group-item d-flex justify-content-between align-items-center {% if grocery.done %}list-group-item-success{% endif %}">
-            <span>
-                {% if grocery.done %}<s>{{ grocery.grocery }}</s>{% else %}{{ grocery.grocery }}{% endif %}
-            </span>
-            <span>
-                <a href="{{ url_for('complete', grocery_id=i) }}" class="btn btn-sm btn-outline-success">✓</a>
-                <a href="{{ url_for('delete', grocery_id=i) }}" class="btn btn-sm btn-outline-danger">🗑️</a>
-            </span>
-        </li>
-    {% else %}
-        <li class="list-group-item">No items yet!</li>
-    {% endfor %}
-</ul>
-{% endblock %}
+    <form action="{{ url_for('add') }}" method="post">
+        <input type="text" name="item" placeholder="Add new item" required>
+        <button type="submit">Add</button>
+    </form>
+</body>
+</html>

@@ -1,36 +1,67 @@
-
-# A very simple Flask Hello World app for you to get started with...
-
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
+CORS(app)
 
-# In-memory groceries list (will reset when server restarts)
-groceries = []
+# Configure SQLite DB
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'groceries.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route('/')
-def index():
-    return render_template('index.html', groceries=groceries)
+db = SQLAlchemy(app)
 
-@app.route('/add', methods=['POST'])
-def add():
-    grocery = request.form.get('grocery')
-    if grocery:
-        groceries.append({'grocery': grocery, 'done': False})
-    return redirect(url_for('index'))
+# Database model
+class GroceryItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    purchased = db.Column(db.Boolean, default=False)
 
-@app.route('/complete/<int:grocery_id>')
-def complete(grocery_id):
-    if 0 <= grocery_id < len(groceries):
-        groceries[grocery_id]['done'] = not groceries[grocery_id]['done']
-    return redirect(url_for('index'))
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'purchased': self.purchased
+        }
 
-@app.route('/delete/<int:grocery_id>')
-def delete(grocery_id):
-    if 0 <= grocery_id < len(groceries):
-        groceries.pop(grocery_id)
-    return redirect(url_for('index'))
+# Create the database
+with app.app_context():
+    db.create_all()
+
+# Routes
+@app.route('/groceries', methods=['GET'])
+def get_groceries():
+    items = GroceryItem.query.all()
+    return jsonify([item.to_dict() for item in items])
+
+@app.route('/groceries', methods=['POST'])
+def add_grocery():
+    data = request.json
+    item = GroceryItem(name=data['name'])
+    db.session.add(item)
+    db.session.commit()
+    return jsonify(item.to_dict()), 201
+
+@app.route('/groceries/<int:item_id>', methods=['PATCH'])
+def toggle_grocery(item_id):
+    item = GroceryItem.query.get(item_id)
+    if item:
+        item.purchased = not item.purchased
+        db.session.commit()
+        return jsonify(item.to_dict())
+    return jsonify({'error': 'Item not found'}), 404
+
+@app.route('/groceries/<int:item_id>', methods=['DELETE'])
+def delete_grocery(item_id):
+    item = GroceryItem.query.get(item_id)
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        return '', 204
+    return jsonify({'error': 'Item not found'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
-
